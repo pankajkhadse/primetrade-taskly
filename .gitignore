@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Environment variables - NEVER commit this
+.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build output
+dist/
+build/
+
+# IDE files
+.vscode/
+.idea/
+
+# Optional: keep .env.example (it's safe to commit)
+!.env.example

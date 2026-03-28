@@ -1,0 +1,344 @@
+{
+  "info": {
+    "name": "Taskly API",
+    "description": "REST API for Taskly — JWT Auth + Role-Based CRUD. Base URL: http://localhost:8081/v1",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8081/v1",
+      "type": "string"
+    },
+    {
+      "key": "client_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "task_id",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register (Client)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/auth/register", "host": ["{{base_url}}"], "path": ["auth", "register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Pankaj Client\",\n  \"email\": \"client@example.com\",\n  \"phone_no\": \"9876543210\",\n  \"password\": \"password123\",\n  \"role\": \"client\"\n}"
+            }
+          },
+          "response": [
+            {
+              "name": "201 - Success",
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"message\": \"Registration successful\",\n  \"user_id\": 1\n}"
+            },
+            {
+              "name": "400 - Email already registered",
+              "status": "Bad Request",
+              "code": 400,
+              "body": "{\n  \"message\": \"Email already registered\"\n}"
+            },
+            {
+              "name": "400 - Validation error",
+              "status": "Bad Request",
+              "code": 400,
+              "body": "{\n  \"message\": \"Validation failed\",\n  \"errors\": [\n    { \"field\": \"email\", \"message\": \"Invalid email format\" },\n    { \"field\": \"password\", \"message\": \"Password must be at least 6 characters\" }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Register (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/auth/register", "host": ["{{base_url}}"], "path": ["auth", "register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Pankaj Admin\",\n  \"email\": \"admin@example.com\",\n  \"phone_no\": \"9876543211\",\n  \"password\": \"admin123\",\n  \"role\": \"admin\"\n}"
+            }
+          },
+          "response": [
+            {
+              "name": "201 - Success",
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"message\": \"Registration successful\",\n  \"user_id\": 2\n}"
+            }
+          ]
+        },
+        {
+          "name": "Login (Client)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) {",
+                  "  pm.collectionVariables.set('client_token', res.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"client@example.com\",\n  \"password\": \"password123\"\n}"
+            }
+          },
+          "response": [
+            {
+              "name": "200 - Success",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"message\": \"Login successful\",\n  \"token\": \"eyJhbGciOiJIUzI1NiIs...\",\n  \"user\": {\n    \"id\": 1,\n    \"name\": \"Pankaj Client\",\n    \"email\": \"client@example.com\",\n    \"role\": \"client\"\n  }\n}"
+            },
+            {
+              "name": "401 - Invalid password",
+              "status": "Unauthorized",
+              "code": 401,
+              "body": "{\n  \"message\": \"Invalid password\"\n}"
+            },
+            {
+              "name": "404 - User not found",
+              "status": "Not Found",
+              "code": 404,
+              "body": "{\n  \"message\": \"User not found\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Login (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) {",
+                  "  pm.collectionVariables.set('admin_token', res.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"admin123\"\n}"
+            }
+          },
+          "response": [
+            {
+              "name": "200 - Success",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"message\": \"Login successful\",\n  \"token\": \"eyJhbGciOiJIUzI1NiIs...\",\n  \"user\": {\n    \"id\": 2,\n    \"name\": \"Pankaj Admin\",\n    \"email\": \"admin@example.com\",\n    \"role\": \"admin\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Task",
+      "item": [
+        {
+          "name": "Create Task (Client only)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.taskId) {",
+                  "  pm.collectionVariables.set('task_id', res.taskId);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{client_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/Task", "host": ["{{base_url}}"], "path": ["Task"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Fix login bug\",\n  \"task\": \"The login form does not validate empty fields before submitting.\"\n}"
+            }
+          },
+          "response": [
+            {
+              "name": "201 - Created",
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"message\": \"Task created successfully\",\n  \"taskId\": 1\n}"
+            },
+            {
+              "name": "403 - Admin blocked",
+              "status": "Forbidden",
+              "code": 403,
+              "body": "{\n  \"message\": \"Access denied. admins cannot perform this action.\"\n}"
+            },
+            {
+              "name": "400 - Validation error",
+              "status": "Bad Request",
+              "code": 400,
+              "body": "{\n  \"message\": \"Validation failed\",\n  \"errors\": [\n    { \"field\": \"name\", \"message\": \"Task name is required\" }\n  ]\n}"
+            },
+            {
+              "name": "401 - No token",
+              "status": "Unauthorized",
+              "code": 401,
+              "body": "{\n  \"message\": \"Access denied. No token provided.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get All Task (Auth)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{client_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/Task", "host": ["{{base_url}}"], "path": ["Task"] }
+          },
+          "response": [
+            {
+              "name": "200 - Client (own Task only)",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"message\": \"Task fetched successfully\",\n  \"count\": 2,\n  \"Task\": [\n    {\n      \"id\": 1,\n      \"owner_id\": 1,\n      \"name\": \"Fix login bug\",\n      \"task\": \"The login form does not validate empty fields.\",\n      \"created_at\": \"2025-01-01T10:00:00.000Z\",\n      \"owner_name\": \"Pankaj Client\"\n    }\n  ]\n}"
+            },
+            {
+              "name": "200 - Admin (all Task)",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"message\": \"Task fetched successfully\",\n  \"count\": 5,\n  \"Task\": [\n    {\n      \"id\": 1,\n      \"owner_id\": 1,\n      \"name\": \"Fix login bug\",\n      \"task\": \"The login form does not validate empty fields.\",\n      \"created_at\": \"2025-01-01T10:00:00.000Z\",\n      \"owner_name\": \"Pankaj Client\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Task by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{client_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/Task/{{task_id}}", "host": ["{{base_url}}"], "path": ["Task", "{{task_id}}"] }
+          },
+          "response": [
+            {
+              "name": "200 - Success",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"message\": \"Task fetched successfully\",\n  \"task\": {\n    \"id\": 1,\n    \"owner_id\": 1,\n    \"name\": \"Fix login bug\",\n    \"task\": \"The login form does not validate empty fields.\",\n    \"created_at\": \"2025-01-01T10:00:00.000Z\",\n    \"owner_name\": \"Pankaj Client\"\n  }\n}"
+            },
+            {
+              "name": "404 - Not found",
+              "status": "Not Found",
+              "code": 404,
+              "body": "{\n  \"message\": \"Task not found\"\n}"
+            },
+            {
+              "name": "403 - Not your task",
+              "status": "Forbidden",
+              "code": 403,
+              "body": "{\n  \"message\": \"You do not own this Task\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Task (owner or admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{client_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/Task/{{task_id}}", "host": ["{{base_url}}"], "path": ["Task", "{{task_id}}"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Fix login bug (updated)\"\n}"
+            }
+          },
+          "response": [
+            {
+              "name": "200 - Updated",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"message\": \"Task updated successfully\"\n}"
+            },
+            {
+              "name": "404 - Not found",
+              "status": "Not Found",
+              "code": 404,
+              "body": "{\n  \"message\": \"Task not found\"\n}"
+            },
+            {
+              "name": "403 - Not your task",
+              "status": "Forbidden",
+              "code": 403,
+              "body": "{\n  \"message\": \"You do not own this Task\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Task (owner or admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{client_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/Task/{{task_id}}", "host": ["{{base_url}}"], "path": ["Task", "{{task_id}}"] }
+          },
+          "response": [
+            {
+              "name": "200 - Deleted",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"message\": \"Task deleted successfully\"\n}"
+            },
+            {
+              "name": "404 - Not found",
+              "status": "Not Found",
+              "code": 404,
+              "body": "{\n  \"message\": \"Task not found\"\n}"
+            },
+            {
+              "name": "403 - Not your task",
+              "status": "Forbidden",
+              "code": 403,
+              "body": "{\n  \"message\": \"You do not own this Task\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
